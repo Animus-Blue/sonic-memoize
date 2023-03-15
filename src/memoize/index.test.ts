@@ -17,6 +17,21 @@ for (let i = 0; i < 1000; i++) {
   days.push(date.toISOString().slice(0, 10));
 }
 
+test("does not call function when return value is cached", () => {
+  const spy = jest.fn();
+  const func = (i) => spy(i);
+  const cached = memoize(func);
+
+  for (let i = 0; i < 1000; i++) {
+    cached(i);
+  }
+  cached(0);
+  cached(42);
+  cached(999);
+
+  expect(spy).toHaveBeenCalledTimes(1000);
+});
+
 test("returns correct cached value with one argument", () => {
   const cached = memoize(dateToMonth);
   const cachedArrow = memoize(dateToMonthArrow);
@@ -161,8 +176,135 @@ test("works with promises", async () => {
   expect(p1NotMemoizedV2).toEqual("new answer: foo");
 });
 
+test("returns correct cached value with one optional parameter", () => {
+  function a(number?: number) {
+    return number || 42;
+  }
+  const cached = memoize(a);
+  const cachedArrow = memoize(a);
+
+  expect(cached(36)).toBe(36);
+  expect(cached(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+  expect(cached()).toBe(42);
+  expect(cached()).toBe(42);
+  expect(cachedArrow()).toBe(42);
+  expect(cachedArrow()).toBe(42);
+  expect(cached(3)).toBe(3);
+  expect(cached(3)).toBe(3);
+  expect(cached(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+});
+
+test("returns correct cached value with one default parameter", () => {
+  function a(number: number = 42) {
+    return number;
+  }
+  const cached = memoize(a);
+  const cachedArrow = memoize(a);
+
+  expect(cached(36)).toBe(36);
+  expect(cached(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+  expect(cached()).toBe(42);
+  expect(cached()).toBe(42);
+  expect(cachedArrow()).toBe(42);
+  expect(cachedArrow()).toBe(42);
+  expect(cached(3)).toBe(3);
+  expect(cached(3)).toBe(3);
+  expect(cached(36)).toBe(36);
+  expect(cachedArrow(36)).toBe(36);
+});
+
+test("returns correct cached value with one optional parameter amongst other parameters", () => {
+  function a(x: number, y: number, z?: number) {
+    return x + y + (z || 42);
+  }
+  const cached = memoize(a);
+  const cachedArrow = memoize(a);
+
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+  expect(cached(1, 2)).toBe(45);
+  expect(cached(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cached(1, 2, 4)).toBe(7);
+  expect(cached(1, 2, 4)).toBe(7);
+  expect(cachedArrow(1, 2, 4)).toBe(7);
+  expect(cachedArrow(1, 2, 4)).toBe(7);
+  expect(cached(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cached(2, 2)).toBe(46);
+  expect(cached(2, 2)).toBe(46);
+  expect(cachedArrow(2, 2)).toBe(46);
+  expect(cachedArrow(2, 2)).toBe(46);
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+});
+
+test("returns correct cached value with one default parameter amongst other parameters", () => {
+  function a(x: number, y: number, z: number = 42) {
+    return x + y + z;
+  }
+  const cached = memoize(a);
+  const cachedArrow = memoize(a);
+
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+  expect(cached(1, 2)).toBe(45);
+  expect(cached(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cached(1, 2, 4)).toBe(7);
+  expect(cached(1, 2, 4)).toBe(7);
+  expect(cachedArrow(1, 2, 4)).toBe(7);
+  expect(cachedArrow(1, 2, 4)).toBe(7);
+  expect(cached(1, 2)).toBe(45);
+  expect(cachedArrow(1, 2)).toBe(45);
+  expect(cached(2, 2)).toBe(46);
+  expect(cached(2, 2)).toBe(46);
+  expect(cachedArrow(2, 2)).toBe(46);
+  expect(cachedArrow(2, 2)).toBe(46);
+  expect(cached(1, 2, 3)).toBe(6);
+  expect(cachedArrow(1, 2, 3)).toBe(6);
+});
+
 test("throws error if provided argument is not a function", () => {
   expect(() => memoize({ func: dateToMonth } as any)).toThrowError(
     "Can only memoize functions"
+  );
+});
+
+test("throws error if function contains rest parameter", () => {
+  function withRestParam1(...args) {
+    return args;
+  }
+  function withRestParam2(a, ...args) {
+    return args;
+  }
+  const withRestParam3 = (...args) => {
+    return args;
+  };
+  const withRestParam4 = (a, ...args) => {
+    return args;
+  };
+  expect(() => memoize(withRestParam1)).toThrowError(
+    "Rest parameters are not supported"
+  );
+  expect(() => memoize(withRestParam2)).toThrowError(
+    "Rest parameters are not supported"
+  );
+  expect(() => memoize(withRestParam3)).toThrowError(
+    "Rest parameters are not supported"
+  );
+  expect(() => memoize(withRestParam4)).toThrowError(
+    "Rest parameters are not supported"
   );
 });

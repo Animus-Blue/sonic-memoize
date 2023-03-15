@@ -1,3 +1,5 @@
+import { getParameterCount } from "./utils";
+
 function memoize(func: (...args: any[]) => any) {
   if (typeof func !== "function") {
     throw new TypeError("Can only memoize functions");
@@ -15,20 +17,27 @@ function memoize(func: (...args: any[]) => any) {
       return uncached;
     };
   }
-  const get = getOrCreate(parameterCount, func);
-  return function (...args: any[]) {
-    return get(cache, args);
-  };
+  return getOrCreate(cache, parameterCount, func);
 }
 
-function getOrCreate(argsCount: number, func: (...args: any[]) => any) {
+function getOrCreate(
+  cache: Map<any, any>,
+  argsCount: number,
+  func: (...args: any[]) => any
+) {
   const lastIndex = argsCount - 1;
   let get: (cache: Map<any, any>, args: any[]) => any = (cache, args) =>
     getOrCreateOnLeaf(cache, args, args[lastIndex], func);
-  for (let i = argsCount - 2; i >= 0; i--) {
+  for (let i = argsCount - 2; i >= 1; i--) {
     get = getOrCreateOnNode(i, get);
   }
-  return get;
+  return function (...args: any[]) {
+    const arg = args[0];
+    if (!cache.has(arg)) {
+      cache.set(arg, new Map());
+    }
+    return get(cache.get(arg), args);
+  };
 }
 
 function getOrCreateOnLeaf(
@@ -56,17 +65,6 @@ function getOrCreateOnNode(
     }
     return nextCreate(cache.get(arg), args);
   };
-}
-
-function getParameterCount(func) {
-  var stringRepresentation = func
-    .toString()
-    .replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm, "");
-  if (stringRepresentation.startsWith("function")) {
-    return stringRepresentation.match(/function\s.*?\(([^)]*)\)/)![1].split(",")
-      .length;
-  }
-  return stringRepresentation.match(/.*?\(([^)]*)\)/)![1].split(",").length;
 }
 
 export default memoize;
