@@ -144,6 +144,23 @@ test("returns correct cached value with three arguments", () => {
   }
 });
 
+test("works with promises", async () => {
+  let answer = "answer: ";
+  const func = (text) =>
+    new Promise((res) => setTimeout(() => res(answer + text), 20));
+  const memoized = memoize(func);
+
+  const p1Memoized = await memoized("foo");
+  const p1NotMemoized = await func("foo");
+  expect(p1Memoized).toEqual("answer: foo");
+  expect(p1NotMemoized).toEqual("answer: foo");
+  answer = "new answer: ";
+  const p1MemoizedV2 = await memoized("foo");
+  const p1NotMemoizedV2 = await func("foo");
+  expect(p1MemoizedV2).toEqual("answer: foo");
+  expect(p1NotMemoizedV2).toEqual("new answer: foo");
+});
+
 test("throws error if provided argument is not a function", () => {
   expect(() => memoize({ func: dateToMonth } as any)).toThrowError(
     "Can only memoize functions"
