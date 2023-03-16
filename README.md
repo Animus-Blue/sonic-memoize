@@ -94,7 +94,7 @@ You can use sonic-memoize with the option of limiting the internal cache size to
 Note that limiting the size of the cache comes at a (small) performance cost and is probably unnecessary if you dont have tough memory usage restrictions or call your memoized functions with many millions of different arguments.
 
 ```js
-import { memoizeWithLimit } from ".";
+import { memoizeWithLimit } from "sonic-memoize";
 
 const memoized = memoizeWithLimit(function (arg1, arg2, arg3) {
   // expensive computation here
