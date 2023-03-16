@@ -1,7 +1,7 @@
 {
   "name": "sonic-memoize",
-  "version": "1.0.0",
-  "description": "Ultra fast memoization of functions with multiple arguments",
+  "version": "1.1.0",
+  "description": "Ultra fast, zero config memoization of functions",
   "keywords": [
     "data",
     "transformation",
