@@ -64,7 +64,7 @@ Results for function with single non primitive parameter:
 The benchmarks were being run on sample sets of 1000 different arguments repeatedly. That makes for a realistic scenario.<br>
 [benchmarking code](./benchmark/index.ts)
 
-### Benchmarking memoization with one function parameter without Cache size limit:
+### Benchmarking memoization with multiple function parameters without Cache size limit:
 
 Results for function with multiple primitive parameters:
 
