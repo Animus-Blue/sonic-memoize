@@ -1,6 +1,9 @@
 import { getParameterCount } from "../memoize/utils";
 
-function memoizeWithLimit(func: (...args: any[]) => any, maxSize: number) {
+function memoizeWithLimit<F extends (...args: any[]) => any>(
+  func: F,
+  maxSize: number
+): F {
   if (typeof func !== "function") {
     throw new TypeError("Can only memoize functions");
   }
@@ -51,7 +54,7 @@ function memoizeWithLimit(func: (...args: any[]) => any, maxSize: number) {
       prev[head] = node;
       cache.set(arg, node);
       return value[node];
-    };
+    } as F;
   }
   const deleteFromCache: any = getDeleteFromCache(parameterCount);
   const deleteEntry = (deleteArgs: any[]) => deleteFromCache(cache, deleteArgs);

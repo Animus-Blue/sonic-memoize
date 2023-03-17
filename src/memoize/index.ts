@@ -1,6 +1,6 @@
 import { getParameterCount } from "./utils";
 
-function memoize(func: (...args: any[]) => any) {
+function memoize<F extends (...args: any[]) => any>(func: F): F {
   if (typeof func !== "function") {
     throw new TypeError("Can only memoize functions");
   }
@@ -15,9 +15,9 @@ function memoize(func: (...args: any[]) => any) {
       uncached = func(arg);
       cache.set(arg, uncached);
       return uncached;
-    };
+    } as F;
   }
-  return getOrCreate(cache, parameterCount, func);
+  return getOrCreate(cache, parameterCount, func) as F;
 }
 
 function getOrCreate(
