@@ -121,7 +121,7 @@ Results for function with single parameter of type string:
 | memoizerific        | 1236.1            |
 | memoizee (lru)      | 1754.9            |
 | moize               | 7598.9            |
-| micro               | 8030.6            |
+| micro-memoize       | 8030.6            |
 
 Results for function with single parameter of type number:
 
@@ -131,7 +131,7 @@ Results for function with single parameter of type number:
 | memoizee (lru)      | 692.3             |
 | memoizerific        | 1257.8            |
 | moize               | 4978.3            |
-| micro               | 8117.5            |
+| micro-memoize       | 8117.5            |
 
 Results for function with single non primitive parameter:
 
@@ -140,7 +140,7 @@ Results for function with single non primitive parameter:
 | sonic-memoize (lru) | 16.0              |
 | memoizee (lru)      | 501.6             |
 | memoizerific        | 1172.7            |
-| micro               | 8872.3            |
+| micro-memoize       | 8872.3            |
 | moize               | 8897.8            |
 
 The benchmarks were being run on sample sets of 1000 different arguments repeatedly, while the size limits of the caches were set to 1000 as well. That makes for a realistic scenario in which the cache size is big enough to handle most function calls.<br>
@@ -156,7 +156,7 @@ Results for function with multiple primitive parameters:
 | memoizee (lru)      | 419.2             |
 | memoizerific        | 1129.6            |
 | moize               | 6083.2            |
-| micro               | 10822.4           |
+| micro-memoize       | 10822.4           |
 
 Results for function with multiple non primitive parameters:
 
@@ -165,7 +165,7 @@ Results for function with multiple non primitive parameters:
 | sonic-memoize (lru) | 56.2              |
 | memoizee (lru)      | 563.9             |
 | memoizerific        | 1122.1            |
-| micro               | 9310.0            |
+| micro-memoize       | 9310.0            |
 | moize               | 9521.1            |
 
 The benchmarks were being run on sample sets of 1000 different arguments repeatedly, while the size limits of the caches were set to 1000 as well. That makes for a realistic scenario in which the cache size is big enough to handle most function calls.<br>

@@ -56,7 +56,7 @@ async function runSingleNumberBenchmark(lru: boolean = false) {
           moize(i);
         }
       })
-      .add("micro", () => {
+      .add("micro-memoize", () => {
         for (let i = 0; i < numberOfDifferentValues; i++) {
           micro(i);
         }
@@ -158,7 +158,7 @@ async function runSingleStringBenchmark(lru: boolean = false) {
           moize(days[i]);
         }
       })
-      .add("micro", () => {
+      .add("micro-memoize", () => {
         for (let i = 0; i < days.length; i++) {
           micro(days[i]);
         }
@@ -259,7 +259,7 @@ async function runSingleNonPrimitiveBenchmark(lru: boolean = false) {
           moize(days[i]);
         }
       })
-      .add("micro", () => {
+      .add("micro-memoize", () => {
         for (let i = 0; i < days.length; i++) {
           micro(days[i]);
         }
@@ -360,7 +360,7 @@ async function runMultiplePrimitiveBenchmark(lru: boolean = false) {
           moize(...days[i]);
         }
       })
-      .add("micro", () => {
+      .add("micro-memoize", () => {
         for (let i = 0; i < days.length; i++) {
           micro(...days[i]);
         }
@@ -453,7 +453,7 @@ async function runMultipleNonPrimitiveBenchmark(lru: boolean = false) {
           moize(...days[i]);
         }
       })
-      .add("micro", () => {
+      .add("micro-memoize", () => {
         for (let i = 0; i < days.length; i++) {
           micro(...days[i]);
         }
