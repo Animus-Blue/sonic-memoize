@@ -100,7 +100,7 @@ test("returns correct cached value with two arguments", () => {
   }
 });
 
-test("returns correct cached value with multiple non primitive arguments", () => {
+test("returns correct cached value with single non primitive argument", () => {
   function add({ a, b, c }) {
     return a + b + c;
   }
@@ -125,6 +125,36 @@ test("returns correct cached value with multiple non primitive arguments", () =>
       for (let c = 0; c < 20; c++) {
         expect(cached({ a, b, c })).toBe(add({ a, b, c }));
         expect(cachedArrow({ a, b, c })).toBe(add({ a, b, c }));
+      }
+    }
+  }
+});
+
+test("returns correct cached value with multiple non primitive arguments", () => {
+  function add({ a }, { b }, { c }) {
+    return a + b + c;
+  }
+
+  const addArrow = ({ a }, { b }, { c }) => {
+    return a + b + c;
+  };
+
+  const cached = memoize(add);
+  const cachedArrow = memoize(addArrow);
+  for (let a = 0; a < 20; a++) {
+    for (let b = 0; b < 20; b++) {
+      for (let c = 0; c < 20; c++) {
+        cached({ a }, { b }, { c });
+        cachedArrow({ a }, { b }, { c });
+      }
+    }
+  }
+
+  for (let a = 0; a < 20; a++) {
+    for (let b = 0; b < 20; b++) {
+      for (let c = 0; c < 20; c++) {
+        expect(cached({ a }, { b }, { c })).toBe(add({ a }, { b }, { c }));
+        expect(cachedArrow({ a }, { b }, { c })).toBe(add({ a }, { b }, { c }));
       }
     }
   }

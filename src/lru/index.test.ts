@@ -194,6 +194,38 @@ test("returns correct cached value with two parameters", () => {
   }
 });
 
+test("returns correct cached value with two non primitive parameters", () => {
+  function calculate({ a }, { b }) {
+    return 3 * (a + b);
+  }
+
+  const calculateArrow = ({ a }, { b }) => {
+    return 3 * (a + b);
+  };
+
+  const cached = memoizeWithLimit(calculate, 20000);
+  const cachedArrow = memoizeWithLimit(calculateArrow, 20000);
+  const args: any[] = [];
+  for (let a = 0; a < 100; a++) {
+    for (let b = 0; b < 100; b++) {
+      args.push([{ a }, { b }]);
+    }
+  }
+
+  const randomIndizes = getRandomIndizes(10000);
+  for (let i = 0; i < 10000; i++) {
+    const arg = args[randomIndizes[i]];
+    cached(arg[0], arg[1]);
+    cachedArrow(arg[0], arg[1]);
+  }
+
+  for (let i = 0; i < 10000; i++) {
+    const arg = args[i];
+    expect(cached(arg[0], arg[1])).toBe(calculate(arg[0], arg[1]));
+    expect(cachedArrow(arg[0], arg[1])).toBe(calculateArrow(arg[0], arg[1]));
+  }
+});
+
 test("returns correct cached value with multiple non primitive parameters", () => {
   function add({ a, b, c }) {
     return a + b + c;
@@ -253,6 +285,41 @@ test("returns correct cached value with three parameters", () => {
   }
 });
 
+test("returns correct cached value with three parameters and random order", () => {
+  function calculate(a, b, c) {
+    return 3 * a * b * c;
+  }
+  const calculateArrow = (a, b, c) => {
+    return 3 * a * b * c;
+  };
+  const args: [number, number, number][] = [];
+
+  const cached = memoizeWithLimit(calculate, 64000);
+  const cachedArrow = memoizeWithLimit(calculateArrow, 64000);
+  for (let a = 0; a < 40; a++) {
+    for (let b = 0; b < 40; b++) {
+      for (let c = 0; c < 40; c++) {
+        args.push([a, b, c]);
+      }
+    }
+  }
+  const randomIndizes = getRandomIndizes(args.length);
+  for (let i = 0; i < args.length; i++) {
+    const [a, b, c] = args[randomIndizes[i]];
+    cached(a, b, c);
+    cachedArrow(a, b, c);
+  }
+
+  for (let a = 0; a < 40; a++) {
+    for (let b = 0; b < 40; b++) {
+      for (let c = 0; c < 40; c++) {
+        expect(cached(a, b, c)).toBe(calculate(a, b, c));
+        expect(cachedArrow(a, b, c)).toBe(calculateArrow(a, b, c));
+      }
+    }
+  }
+});
+
 test("returns correct cached value with three parameters if cache is too small", () => {
   function calculate(a, b, c) {
     return 3 * a * b * c;
@@ -277,6 +344,42 @@ test("returns correct cached value with three parameters if cache is too small",
       for (let c = 0; c < 40; c++) {
         expect(cached(a, b, c)).toBe(calculate(a, b, c));
         expect(cachedArrow(a, b, c)).toBe(calculate(a, b, c));
+      }
+    }
+  }
+});
+
+test("returns correct cached value with three parameters if cache is too small with random order", () => {
+  function calculate(a, b, c) {
+    return 3 * a * b * c;
+  }
+  const calculateArrow = (a, b, c) => {
+    return 3 * a * b * c;
+  };
+
+  const args: [number, number, number][] = [];
+
+  const cached = memoizeWithLimit(calculate, 20000);
+  const cachedArrow = memoizeWithLimit(calculateArrow, 20000);
+  for (let a = 0; a < 40; a++) {
+    for (let b = 0; b < 40; b++) {
+      for (let c = 0; c < 40; c++) {
+        args.push([a, b, c]);
+      }
+    }
+  }
+  const randomIndizes = getRandomIndizes(args.length);
+  for (let i = 0; i < args.length; i++) {
+    const [a, b, c] = args[randomIndizes[i]];
+    cached(a, b, c);
+    cachedArrow(a, b, c);
+  }
+
+  for (let a = 0; a < 40; a++) {
+    for (let b = 0; b < 40; b++) {
+      for (let c = 0; c < 40; c++) {
+        expect(cached(a, b, c)).toBe(calculate(a, b, c));
+        expect(cachedArrow(a, b, c)).toBe(calculateArrow(a, b, c));
       }
     }
   }
@@ -487,6 +590,27 @@ test("removes least recently used element from cache if not used", () => {
 
   expect(spy).toHaveBeenCalledTimes(1002);
   expect(spy).toHaveBeenLastCalledWith(42);
+});
+
+test("removes least recently used element from cache if not used with two arguments", () => {
+  const spy = jest.fn();
+  const func = (a, b) => spy(a, b);
+  const cached = memoizeWithLimit(func, 1000);
+
+  cached(42, 43);
+  for (let i = 0; i < 1000; i++) {
+    if (i !== 42) {
+      cached(i, i + 1);
+    }
+  }
+
+  cached(1000, 1001);
+  for (let i = 1; i <= 999; i++) {
+    cached(i, i + 1);
+  }
+
+  expect(spy).toHaveBeenCalledTimes(1002);
+  expect(spy).toHaveBeenLastCalledWith(42, 43);
 });
 
 test("removes least recently used element from cache if not used", () => {
